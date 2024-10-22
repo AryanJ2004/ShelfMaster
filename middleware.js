@@ -3,6 +3,7 @@ const Review=require("./models/review.js");
 const {listingSchema}=require("./schema.js");
 const ExpressError=require("./utils/ExpressError.js");
 const {reviewSchema}=require("./schema.js");
+const User = require("./models/user.js");
 module.exports.isLoggedIn = (req, res, next) => {
     if(!req.isAuthenticated()){
         req.session.redirectUrl=req.originalUrl;
@@ -64,3 +65,33 @@ module.exports.isReviewAuthor=async (req,res,next)=>{
     }
     next();
 }
+
+module.exports.verifyOtpMiddleware = async (req, res, next) => {
+    const { userId } = req.query;
+
+    if (!userId) {
+        req.flash("error", "Invalid access. Please request a new OTP.");
+        return res.redirect("/login");
+    }
+
+    const user = await User.findById(userId);
+    if (!user || !user.otp || user.otpExpires < Date.now()) {
+        req.flash("error", "Invalid or expired OTP. Please request a new one.");
+        return res.redirect("/login");
+    }
+
+    req.user = user; // Attach user to request for later use
+    next();
+};
+
+module.exports.verifyOtp = async (req, res, next) => {
+    const { userId, otp } = req.body;
+
+    if (!userId && !otp) {
+        req.flash("error", "Invalid access. Please request a new OTP.");
+        return res.redirect("/login");
+    }
+   
+    next();
+};
+

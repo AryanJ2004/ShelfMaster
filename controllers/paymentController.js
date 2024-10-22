@@ -52,7 +52,7 @@ const capturePayment = async (req, res) => {
     try {
   
         const paymentDetails = await razorpayInstance.payments.fetch(paymentId);
-        // console.log('Payment Details:', paymentDetails);
+        console.log('Payment Details:', paymentDetails);
 
 
         if (paymentDetails.status === 'captured') {
