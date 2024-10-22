@@ -75,6 +75,10 @@ app.use(paymentRoutes);
 
 app.get("/",async (req,res)=>{
     try{
+        if (req.isAuthenticated()) {
+            // If the user is logged in, redirect to /listings
+            return res.redirect("/listings");
+        }
         let {username,email,password}=req.body;
     const newUser=new User({email,username});
     const registeredUser=await User.register(newUser,password);
